@@ -1,12 +1,14 @@
 <?php
 
+namespace Dmoen\MailtrapAssertions\Helpers;
+
 use PHPMailer\PHPMailer\PHPMailer;
 
 class Mail
 {
     const HOST = "smtp.mailtrap.io";
 
-    const PORT = 25;
+    const PORT = 2525;
 
     const USERNAME = "3cd907b9fcf846";
 
@@ -19,8 +21,8 @@ class Mail
         $this->mailer = new PHPMailer(true);
 
         //Server settings
-        $this->mailer->SMTPDebug = 2;
         $this->mailer->isSMTP();
+        $this->mailer->AuthType = 'LOGIN';
         $this->mailer->Host = self::HOST;
         $this->mailer->SMTPAuth = true;
         $this->mailer->Username = self::USERNAME;
@@ -36,9 +38,11 @@ class Mail
         return $this;
     }
 
-    public function to($address)
+    public function to(...$addresses)
     {
-        $this->mailer->addAddress($address);
+        foreach($addresses as $address){
+            $this->mailer->addAddress($address);
+        }
 
         return $this;
     }
