@@ -106,4 +106,41 @@ class MailTrapInboxTest extends TestCase
 
         $this->assertEquals("reciever2@example.com", $inbox->getLastMessage()->to_email);
     }
+
+    public function test_it_can_retrieve_the_first_message()
+    {
+        $inbox = new MailTrapInbox('4572a3ecfd10210a085f542c84b3b1b7', '268334');
+        $inbox->deleteAllMessages();
+
+        (new Mail())
+            ->from('sender@example.com', 'Sender Sendersson')
+            ->subject('Lorem subject')
+            ->body('Lorem ipsum sit amet')
+            ->to("reciever@example.com")
+            ->send();
+
+        (new Mail())
+            ->from('sender2@example.com', 'Sender Sendersson')
+            ->subject('Lorem subject')
+            ->body('Lorem ipsum sit amet')
+            ->to("reciever2@example.com")
+            ->send();
+
+        $this->assertEquals("reciever@example.com", $inbox->getFirstMessage()->to_email);
+    }
+
+    public function test_it_can_retrieve_a_message_at_a_specific_index()
+    {
+        $inbox = new MailTrapInbox('4572a3ecfd10210a085f542c84b3b1b7', '268334');
+        $inbox->deleteAllMessages();
+
+        (new Mail())
+            ->from('sender@example.com', 'Sender Sendersson')
+            ->subject('Lorem subject')
+            ->body('Lorem ipsum sit amet')
+            ->to("reciever@example.com")
+            ->send();
+
+        $this->assertEquals("reciever@example.com", $inbox->getMessage(0)->to_email);
+    }
 }

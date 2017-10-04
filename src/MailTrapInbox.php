@@ -2,44 +2,66 @@
 
 namespace Dmoen\MailtrapAssertions;
 
-use PHPUnit\Framework\Assert;
 use GuzzleHttp\Client;
 
-class MailTrapInbox extends Assert{
+class MailTrapInbox{
 
     private $client;
 
     private $mailtrapInbox;
+
+    private $asserts;
 
     const BASEURL = "https://mailtrap.io/api/v1/";
 
     public function __construct($apiToken, $mailtrapInbox)
     {
         $this->mailtrapInbox = $mailtrapInbox;
-
         $this->client = new Client([
             'base_uri' => self::BASEURL,
             'headers' => [
                 'Api-Token' => $apiToken
             ]
         ]);
+        $this->asserts = new Asserts();
     }
 
     public function getLastMessage()
     {
         $messages = $this->fetchAllMessages();
 
-        if(empty($messages)) {
-            $this->fail("No messages received");
+        return reset($messages);
+    }
+
+    public function getFirstMessage()
+    {
+        $messages = $this->fetchAllMessages();
+
+        return end($messages);
+    }
+
+    public function getMessage($index)
+    {
+        $messages = $this->fetchAllMessages();
+
+        if(!isset($messages[$index])){
+            $this->asserts->fail("No message found with index $index");
         }
 
-        return reset($messages);
+        return $messages[$index];
     }
 
     public function fetchAllMessages()
     {
         $response = $this->client->request('GET', "inboxes/$this->mailtrapInbox/messages");
-        return json_decode((string) $response->getBody());
+
+        $messages = json_decode((string) $response->getBody());
+
+        if(empty($messages)){
+            $this->asserts->fail("No messages in inbox");
+        }
+
+        return $messages;
     }
 
     public function deleteAllMessages()
@@ -49,63 +71,55 @@ class MailTrapInbox extends Assert{
 
     public function assertHasMails()
     {
-        $this->assertNotEmpty($this->fetchAllMessages(), "The inbox has no messages");
+        $this->asserts->assertNotEmpty($this->fetchAllMessages(), "The inbox has no messages");
+    }
+
+    public function searchMail(callable $condition)
+    {
+        $messages = $this->fetchAllMessages();
+        $found = false;
+
+        foreach($messages as $message){
+            $found = $condition($message);
+        }
+
+        return $found;
     }
 
     public function assertHasMailFor($receiver)
     {
-        $messages = $this->fetchAllMessages();
-        $found = false;
+        $found = $this->searchMail(function($message) use($receiver){
+            return $message->to_email == $receiver;
+        });
 
-        foreach($messages as $message){
-            if($message->to_email == $receiver){
-                $found = true;
-            }
-        }
-
-        $this->assertTrue($found, "No message found with receiver $receiver");
+        $this->asserts->assertTrue($found, "No message found with receiver $receiver");
     }
 
     public function assertHasMailWithSubject($subject)
     {
-        $messages = $this->fetchAllMessages();
-        $found = false;
+        $found = $this->searchMail(function($message) use($subject){
+            return $message->subject == $subject;
+        });
 
-        foreach($messages as $message){
-            if($message->subject == $subject){
-                $found = true;
-            }
-        }
-
-        $this->assertTrue($found, "No message found with subject $subject");
+        $this->asserts->assertTrue($found, "No message found with subject $subject");
     }
 
     public function assertHasMailWithHtmlContent($content)
     {
-        $messages = $this->fetchAllMessages();
-        $found = false;
+        $found = $this->searchMail(function($message) use($content){
+            return strpos($message->html_body, $content) !== false;
+        });
 
-        foreach($messages as $message){
-            if(strpos($message->html_body, $content) !== false){
-                $found = true;
-            }
-        }
-
-        $this->assertTrue($found, "No message found with content $content");
+        $this->asserts->assertTrue($found, "No message found with content $content");
     }
 
     public function assertHasMailWithTextContent($content)
     {
-        $messages = $this->fetchAllMessages();
-        $found = false;
+        $found = $this->searchMail(function($message) use($content){
+            return strpos($message->text_body, $content) !== false;
+        });
 
-        foreach($messages as $message){
-            if(strpos($message->text_body, $content) !== false){
-                $found = true;
-            }
-        }
-
-        $this->assertTrue($found, "No message found with content $content");
+        $this->asserts->assertTrue($found, "No message found with content $content");
     }
 
 }
