@@ -48,7 +48,7 @@ class MailTrapInbox
             $this->asserts->fail("No message found with index: $index");
         }
 
-        return new MailTrapMessage($messages[$index]);
+        return $messages[$index];
     }
 
     public function fetchAllMessages()
