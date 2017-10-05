@@ -54,12 +54,15 @@ class MailTrapInbox
     public function fetchAllMessages()
     {
         $response = $this->client->request('GET', "inboxes/$this->mailtrapInbox/messages");
-
         $messages = json_decode((string) $response->getBody());
 
         if(empty($messages)){
             $this->asserts->fail("No messages in inbox");
         }
+
+        array_walk($messages, function(&$message){
+            $message = new MailTrapMessage($message);
+        });
 
         return $messages;
     }
