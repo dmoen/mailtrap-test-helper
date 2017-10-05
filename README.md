@@ -18,6 +18,20 @@ Create an instance of MailTrapInbox with api key and id of the inbox:
 $inbox = new MailTrapInbox('api_key', 'inbox_id');  
 ```
 
+Example using a PHPUnit test case. Before each test the inbox should be cleaned:
+
+```php
+private $inbox;
+
+public function setUp()
+{
+    parent::setUp();
+
+    $this->inbox = new MailTrapInbox('4572a3ecfd10210a085f542c84b3b1b7', '268334');
+    $this->inbox->deleteAllMessages();
+}
+```
+
 ### Simple inbox testing
 
 Test if the inbox has any messages:
