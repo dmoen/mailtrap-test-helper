@@ -38,11 +38,9 @@ class Mail
         return $this;
     }
 
-    public function to(...$addresses)
+    public function to($address, $name = '')
     {
-        foreach($addresses as $address){
-            $this->mailer->addAddress($address);
-        }
+        $this->mailer->addAddress($address, $name);
 
         return $this;
     }

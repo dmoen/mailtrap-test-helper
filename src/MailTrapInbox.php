@@ -4,8 +4,8 @@ namespace Dmoen\MailtrapAssertions;
 
 use GuzzleHttp\Client;
 
-class MailTrapInbox{
-
+class MailTrapInbox
+{
     private $client;
 
     private $mailtrapInbox;
@@ -28,27 +28,27 @@ class MailTrapInbox{
 
     public function getLastMessage()
     {
-        $messages = $this->fetchAllMessages();
-
-        return reset($messages);
+        return $this->getMessage(0);
     }
 
     public function getFirstMessage()
     {
-        $messages = $this->fetchAllMessages();
-
-        return end($messages);
+        return $this->getMessage(-1);
     }
 
     public function getMessage($index)
     {
         $messages = $this->fetchAllMessages();
 
-        if(!isset($messages[$index])){
-            $this->asserts->fail("No message found with index $index");
+        if($index < 0){
+            $index = count($messages) + $index;
         }
 
-        return $messages[$index];
+        if(!isset($messages[$index])){
+            $this->asserts->fail("No message found with index: $index");
+        }
+
+        return new MailTrapMessage($messages[$index]);
     }
 
     public function fetchAllMessages()
@@ -86,13 +86,42 @@ class MailTrapInbox{
         return $found;
     }
 
-    public function assertHasMailFor($receiver)
+    public function assertHasMailFrom($sender, $name = null)
     {
-        $found = $this->searchMail(function($message) use($receiver){
+        $found = $this->searchMail(function($message) use($sender, $name){
+            if($name){
+                return $message->from_email == $sender
+                    && $message->from_name == $name;
+            }
+
+            return $message->from_email == $sender;
+        });
+
+        if(!$name){
+            $this->asserts->assertTrue($found, "No message found with sender: $sender");
+        }
+        else{
+            $this->asserts->assertTrue($found, "No message found with sender: $name <$sender>");
+        }
+    }
+
+    public function assertHasMailFor($receiver, $name = null)
+    {
+        $found = $this->searchMail(function($message) use($receiver, $name){
+            if($name){
+                return $message->to_email == $receiver
+                    && $message->to_name == $name;
+            }
+
             return $message->to_email == $receiver;
         });
 
-        $this->asserts->assertTrue($found, "No message found with receiver $receiver");
+        if(!$name){
+            $this->asserts->assertTrue($found, "No message found with receiver: $receiver");
+        }
+        else{
+            $this->asserts->assertTrue($found, "No message found with receiver: $name <$receiver>");
+        }
     }
 
     public function assertHasMailWithSubject($subject)
@@ -101,7 +130,7 @@ class MailTrapInbox{
             return $message->subject == $subject;
         });
 
-        $this->asserts->assertTrue($found, "No message found with subject $subject");
+        $this->asserts->assertTrue($found, "No message found with subject: $subject");
     }
 
     public function assertHasMailWithHtmlContent($content)
@@ -110,7 +139,7 @@ class MailTrapInbox{
             return strpos($message->html_body, $content) !== false;
         });
 
-        $this->asserts->assertTrue($found, "No message found with content $content");
+        $this->asserts->assertTrue($found, "No message found with content: $content");
     }
 
     public function assertHasMailWithTextContent($content)
@@ -119,7 +148,7 @@ class MailTrapInbox{
             return strpos($message->text_body, $content) !== false;
         });
 
-        $this->asserts->assertTrue($found, "No message found with content $content");
+        $this->asserts->assertTrue($found, "No message found with content: $content");
     }
 
 }
