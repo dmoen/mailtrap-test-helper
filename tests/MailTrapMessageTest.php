@@ -1,6 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
-use Dmoen\MailtrapAssertions\MailTrapMessage;
+use Dmoen\MailtrapTestHelper\MailTrapMessage;
 
 class MailTrapMessageTest extends TestCase
 {

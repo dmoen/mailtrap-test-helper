@@ -1,6 +1,6 @@
 <?php
 
-namespace Dmoen\MailtrapAssertions\Helpers;
+namespace Dmoen\MailtrapTestHelper\Helpers;
 
 use PHPMailer\PHPMailer\PHPMailer;
 

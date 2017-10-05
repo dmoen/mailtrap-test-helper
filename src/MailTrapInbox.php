@@ -1,6 +1,6 @@
 <?php
 
-namespace Dmoen\MailtrapAssertions;
+namespace Dmoen\MailtrapTestHelper;
 
 use GuzzleHttp\Client;
 
