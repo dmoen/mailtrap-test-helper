@@ -27,7 +27,7 @@ public function setUp()
 {
     parent::setUp();
 
-    $this->inbox = new MailTrapInbox('4572a3ecfd10210a085f542c84b3b1b7', '268334');
+    $this->inbox = new MailTrapInbox('api_key', 'inbox_id'));
     $this->inbox->deleteAllMessages();
 }
 ```
