@@ -91,6 +91,17 @@ Or if you know the specific index in the inbox:
 $message = $inbox->getMessage(2);
 ```
 
+You can also search the inbox for a specific unique message using a condition:
+
+```php
+$message = $this->inbox->findUnique(function($message){
+    return $message->to_email == "receiver@example.com";
+});
+```
+
+The message instance passed to the closure has all the properties 
+retrieved from the Mailtrap API: http://docs.mailtrap.apiary.io/#reference/message/apiv1inboxesinboxidmessagesid/get
+
 The message can then be tested with a combination of tests:
 
 ```php

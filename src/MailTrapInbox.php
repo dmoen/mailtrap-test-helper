@@ -89,6 +89,24 @@ class MailTrapInbox
         return $found;
     }
 
+    public function findUnique(callable $condition)
+    {
+        $messages = $this->fetchAllMessages();
+
+        $foundMessages = array_filter($messages, function($message) use($condition){
+            return $condition($message);
+        });
+
+        if(count($foundMessages) > 1){
+            $this->asserts->fail("Found more than one message matching condition");
+        }
+        else if(!$foundMessages){
+            $this->asserts->fail("Found no message matching condition");
+        }
+
+        return $foundMessages[0];
+    }
+
     public function assertHasMailFrom($sender, $name = null)
     {
         $found = $this->searchMail(function($message) use($sender, $name){

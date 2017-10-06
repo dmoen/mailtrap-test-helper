@@ -149,4 +149,21 @@ class MailTrapInboxTest extends TestCase
             ->assertHasSubject("Lorem subject")
             ->assertHasHtmlContent("<b>Lorem ipsum sit amet</b>");
     }
+
+    public function test_it_finds_an_unique_message()
+    {
+        (new Mail())
+            ->from('sender@example.com', 'Sender Sendersson')
+            ->subject('Lorem subject')
+            ->body('<b>Lorem ipsum sit amet</b>')
+            ->to("receiver@example.com", "Reviever Recieversson")
+            ->send();
+
+        $message = $this->inbox->findUnique(function($message){
+            return $message->to_email == "receiver@example.com";
+        });
+
+        $this->assertInstanceOf(MailTrapMessage::class, $message);
+        $this->assertEquals("receiver@example.com", $message->to_email);
+    }
 }
