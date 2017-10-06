@@ -12,7 +12,10 @@ class MailTrapInboxTest extends TestCase
     {
         parent::setUp();
 
-        $this->inbox = new MailTrapInbox('4572a3ecfd10210a085f542c84b3b1b7', '268334');
+        $dotenv = new Dotenv\Dotenv(dirname(__DIR__));
+        $dotenv->load();
+
+        $this->inbox = new MailTrapInbox(getenv('MAILTRAP_API_TOKEN'), getenv('MAILTREP_INBOX'));
         $this->inbox->deleteAllMessages();
     }
 
