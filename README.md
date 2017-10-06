@@ -94,7 +94,19 @@ $message = $inbox->getMessage(2);
 You can also search the inbox for a specific unique message using a condition:
 
 ```php
-$message = $this->inbox->findUnique(function($message){
+$message = $inbox->findUnique(function($message){
+    return $message->to_email == "receiver@example.com";
+});
+```
+
+Or retrieve an array of all messages or by condition: 
+
+```php
+$messages = $inbox->fetchAllMessages();
+```
+
+```php
+$messages = $inbox->findMessages(function($message){
     return $message->to_email == "receiver@example.com";
 });
 ```
@@ -102,7 +114,7 @@ $message = $this->inbox->findUnique(function($message){
 The message instance passed to the closure has all the properties 
 retrieved from the Mailtrap API: http://docs.mailtrap.apiary.io/#reference/message/apiv1inboxesinboxidmessagesid/get
 
-The message can then be tested with a combination of tests:
+The message(s) can then be tested with a combination of tests:
 
 ```php
 $message->assertIsFrom("me@railsware.com", "Private Person")

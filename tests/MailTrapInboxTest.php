@@ -15,7 +15,7 @@ class MailTrapInboxTest extends TestCase
         $dotenv = new Dotenv\Dotenv(dirname(__DIR__));
         $dotenv->load();
 
-        $this->inbox = new MailTrapInbox(getenv('MAILTRAP_API_TOKEN'), getenv('MAILTREP_INBOX'));
+        $this->inbox = new MailTrapInbox(getenv('MAILTRAP_API_TOKEN'), getenv('MAILTRAP_INBOX'));
         $this->inbox->deleteAllMessages();
     }
 
@@ -165,5 +165,30 @@ class MailTrapInboxTest extends TestCase
 
         $this->assertInstanceOf(MailTrapMessage::class, $message);
         $this->assertEquals("receiver@example.com", $message->to_email);
+    }
+
+    public function test_it_finds_messages_by_condition()
+    {
+        (new Mail())
+            ->from('sender@example.com', 'Sender Sendersson')
+            ->subject('Lorem subject')
+            ->body('<b>Lorem ipsum sit amet</b>')
+            ->to("receiver@example.com", "Reviever Recieversson")
+            ->send();
+
+        (new Mail())
+            ->from('sender2@example.com', 'Sender Sendersson')
+            ->subject('Lorem subject')
+            ->body('<b>Lorem ipsum sit amet</b>')
+            ->to("receiver@example.com", "Reviever Recieversson")
+            ->send();
+
+        $messages = $this->inbox->findMessages(function($message){
+            return $message->to_email == "receiver@example.com";
+        });
+
+        $this->assertCount(2, $messages);
+        $this->assertEquals("sender2@example.com", $messages[0]->from_email);
+        $this->assertEquals("sender@example.com", $messages[1]->from_email);
     }
 }

@@ -51,13 +51,14 @@ class MailTrapInbox
         return $messages[$index];
     }
 
-    public function fetchAllMessages()
+    public function fetchAllMessages($searchString = null)
     {
-        $response = $this->client->request('GET', "inboxes/$this->mailtrapInbox/messages");
+        $response = $this->client->request('GET', "inboxes/$this->mailtrapInbox/messages"
+            .($searchString ?: "?search=$searchString"));
         $messages = json_decode((string) $response->getBody());
 
         if(empty($messages)){
-            $this->asserts->fail("No messages in inbox");
+            $this->asserts->fail("No messages found in inbox");
         }
 
         array_walk($messages, function(&$message){
@@ -77,7 +78,7 @@ class MailTrapInbox
         $this->asserts->assertNotEmpty($this->fetchAllMessages(), "The inbox has no messages");
     }
 
-    public function searchMail(callable $condition)
+    private function searchMail(callable $condition)
     {
         $messages = $this->fetchAllMessages();
         $found = false;
@@ -105,6 +106,21 @@ class MailTrapInbox
         }
 
         return $foundMessages[0];
+    }
+
+    public function findMessages(callable $condition)
+    {
+        $messages = $this->fetchAllMessages();
+
+        $foundMessages = array_filter($messages, function($message) use($condition){
+            return $condition($message);
+        });
+
+        if(!$foundMessages){
+            $this->asserts->fail("Found no messages matching condition");
+        }
+
+        return $foundMessages;
     }
 
     public function assertHasMailFrom($sender, $name = null)
