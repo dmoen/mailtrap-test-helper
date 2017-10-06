@@ -1,6 +1,6 @@
 # Mailtrap test helper
 
-Test helper libary for testing email submissions through Mailtrap, based on PHPUnit.
+Test helper library for testing email submissions through Mailtrap, based on PHPUnit.
 
 ## Installation
 

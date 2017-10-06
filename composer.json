@@ -1,6 +1,6 @@
 {
     "name": "dmoen/mailtrap-test-helper",
-    "description": "Test helper libary for testing email submissions through Mailtrap, based on PHPUnit",
+    "description": "Test helper library for testing email submissions through Mailtrap, based on PHPUnit",
     "type": "libary",
     "license": "MIT",
     "authors": [
